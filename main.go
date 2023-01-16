@@ -8,11 +8,8 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	"golang.org/x/net/route"
 	"log"
-	"net"
 	"net/http"
-	"strconv"
 )
 
 func listen(networkInterface string) {
@@ -103,70 +100,8 @@ func printHttp(packet gopacket.Packet) bool {
 	return false
 }
 
-func findGateWay() net.IP {
-	defaultRoute := [4]byte{0, 0, 0, 0}
-
-	rib, _ := route.FetchRIB(0, route.RIBTypeRoute, 0)
-	messages, err := route.ParseRIB(route.RIBTypeRoute, rib)
-
-	if err != nil {
-		return nil
-	}
-
-	for _, message := range messages {
-		routeMessage := message.(*route.RouteMessage)
-		addresses := routeMessage.Addrs
-
-		var destination, gateway *route.Inet4Addr
-		ok := false
-
-		if destination, ok = addresses[0].(*route.Inet4Addr); !ok {
-			continue
-		}
-
-		if gateway, ok = addresses[1].(*route.Inet4Addr); !ok {
-			continue
-		}
-
-		if destination == nil || gateway == nil {
-			continue
-		}
-
-		if destination.IP == defaultRoute {
-			return net.IPv4(gateway.IP[0], gateway.IP[1], gateway.IP[2], gateway.IP[3])
-		}
-	}
-	return nil
-}
-
-func findDefaultInterface() string {
-	gateway := findGateWay()
-
-	devices, err := pcap.FindAllDevs()
-	if err != nil {
-		return ""
-	}
-	for _, device := range devices {
-		for _, address := range device.Addresses {
-			maskNum, totalNum := address.Netmask.Size()
-			if totalNum == 32 {
-				_, inet, err := net.ParseCIDR(address.IP.String() + "/" + strconv.Itoa(maskNum))
-				if err != nil {
-					continue
-				}
-				if inet.Contains(gateway) {
-					return device.Name
-				}
-			}
-		}
-	}
-	return ""
-}
-
 func main() {
-	defaultInterface := findDefaultInterface()
-
-	cliInterface := flag.String("i", defaultInterface, "Network interface to listen on")
+	cliInterface := flag.String("i", "eth0", "Network interface to listen on")
 
 	flag.Parse()
 
