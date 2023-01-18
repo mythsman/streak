@@ -21,8 +21,8 @@ func listen(networkInterface string) {
 	defer handle.Close()
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
-
-		if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
+		// Only process transport layer (tcp , udp , not icmp)
+		if packet.TransportLayer() != nil {
 			ipSrc := packet.NetworkLayer().NetworkFlow().Src()
 			ipDst := packet.NetworkLayer().NetworkFlow().Dst()
 
@@ -30,22 +30,13 @@ func listen(networkInterface string) {
 			portDst := packet.TransportLayer().TransportFlow().Dst()
 
 			isTls := printTls(packet)
+
 			isHttp := printHttp(packet)
-			if isTls || isHttp {
-				log.Printf("tcp %s:%s -> %s:%s", ipSrc, portSrc, ipDst, portDst)
-			}
-		}
-
-		if udpLayer := packet.Layer(layers.LayerTypeUDP); udpLayer != nil {
-			ipSrc := packet.NetworkLayer().NetworkFlow().Src()
-			ipDst := packet.NetworkLayer().NetworkFlow().Dst()
-
-			portSrc := packet.TransportLayer().TransportFlow().Src()
-			portDst := packet.TransportLayer().TransportFlow().Dst()
 
 			isDns := printDns(packet)
-			if isDns {
-				log.Printf("udp %s:%s -> %s:%s", ipSrc, portSrc, ipDst, portDst)
+
+			if isTls || isHttp || isDns {
+				log.Printf("known transportLayer %s:%s -> %s:%s", ipSrc, portSrc, ipDst, portDst)
 			}
 		}
 	}
