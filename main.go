@@ -10,6 +10,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"log"
 	"net/http"
+	"regexp"
 )
 
 func listen(networkInterface string) {
@@ -92,12 +93,21 @@ func printHttp(packet gopacket.Packet) bool {
 			reader := bufio.NewReader(bytes.NewReader(tcp.Payload))
 			httpReq, err := http.ReadRequest(reader)
 			if err == nil {
-				log.Printf("http %s %s", httpReq.Host, httpReq.RequestURI) //TODO refine
+				log.Printf("http %s %s", httpReq.Host, parsePath(httpReq.RequestURI))
 				return true
 			}
 		}
 	}
 	return false
+}
+
+func parsePath(url string) string {
+	pathPattern := regexp.MustCompile("(https?://[^/]*)?(/.*)")
+	match := pathPattern.FindStringSubmatch(url)
+	if len(match) >= 3 {
+		return match[2]
+	}
+	return ""
 }
 
 func main() {
