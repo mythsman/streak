@@ -36,7 +36,7 @@ func listen(networkInterface string) {
 			isDns := printDns(packet)
 
 			if isTls || isHttp || isDns {
-				log.Printf("known transportLayer %s:%s -> %s:%s", ipSrc, portSrc, ipDst, portDst)
+				log.Printf("transportLayer %s:%s -> %s:%s", ipSrc, portSrc, ipDst, portDst)
 			}
 		}
 	}
@@ -69,8 +69,10 @@ func printTls(packet gopacket.Packet) bool {
 			clientHello := tlsx.GetClientHello(packet)
 			if clientHello != nil {
 				serverName := clientHello.SNI
-				log.Printf("https %s", serverName)
-				return true
+				if serverName != "" {
+					log.Printf("https %s", serverName)
+					return true
+				}
 			}
 		}
 	}
