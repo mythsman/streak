@@ -1,0 +1,7 @@
+network:
+  interface: eth0
+influxdb:
+  url: https://localhost
+  token: 111111111
+  org: home
+  bucket: streak
