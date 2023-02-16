@@ -10,10 +10,7 @@ import (
 	"regexp"
 )
 
-type HttpFilter struct {
-}
-
-func (f *HttpFilter) Filter(packet gopacket.Packet) {
+func HttpFilter(packet gopacket.Packet) {
 	if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 		tcp, _ := tcpLayer.(*layers.TCP)
 		if len(tcp.Payload) != 0 {

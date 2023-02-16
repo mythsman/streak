@@ -8,22 +8,7 @@ import (
 	"streak/app/filter"
 )
 
-func Run() {
-	InitLogger()
-
-	InitConfig()
-
-	InitInfluxdb()
-
-	loop()
-}
-
-var dnsFilter = &filter.DnsFilter{}
-var tlsFilter = &filter.TlsFilter{}
-var httpFilter = &filter.HttpFilter{}
-var transportFilter = &filter.TransportFilter{}
-
-func loop() {
+func RunAgent() {
 
 	networkInterface := viper.GetString("network.interface")
 
@@ -36,10 +21,10 @@ func loop() {
 	for packet := range packetSource.Packets() {
 		// Only process transport layer (tcp , udp)
 		if packet.TransportLayer() != nil {
-			dnsFilter.Filter(packet)
-			tlsFilter.Filter(packet)
-			httpFilter.Filter(packet)
-			transportFilter.Filter(packet)
+			filter.DnsFilter(packet)
+			filter.TlsFilter(packet)
+			filter.HttpFilter(packet)
+			filter.TransportFilter(packet)
 		}
 	}
 }

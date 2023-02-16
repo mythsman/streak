@@ -5,10 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type TransportFilter struct {
-}
-
-func (f *TransportFilter) Filter(packet gopacket.Packet) {
+func TransportFilter(packet gopacket.Packet) {
 	ipSrc := packet.NetworkLayer().NetworkFlow().Src()
 	ipDst := packet.NetworkLayer().NetworkFlow().Dst()
 

@@ -5,5 +5,12 @@ import (
 )
 
 func main() {
-	app.Run()
+	app.InitLogger()
+
+	app.InitConfig()
+
+	app.InitInfluxdb()
+
+	app.RunAgent()
+
 }

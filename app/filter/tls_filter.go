@@ -7,10 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type TlsFilter struct {
-}
-
-func (*TlsFilter) Filter(packet gopacket.Packet) {
+func TlsFilter(packet gopacket.Packet) {
 	if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 		tcp, _ := tcpLayer.(*layers.TCP)
 
