@@ -4,7 +4,8 @@ import (
 	"github.com/dreadl0ck/tlsx"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/sirupsen/logrus"
+	"streak/app/common"
+	"strings"
 )
 
 func TlsFilter(packet gopacket.Packet) {
@@ -16,8 +17,12 @@ func TlsFilter(packet gopacket.Packet) {
 			if clientHello != nil {
 				serverName := clientHello.SNI
 				if serverName != "" {
-					logrus.Printf("https %s", serverName)
-					return
+					ipSrc := packet.NetworkLayer().NetworkFlow().Src()
+					ipDst := packet.NetworkLayer().NetworkFlow().Dst()
+
+					domain := strings.ToLower(serverName)
+
+					common.ReportTls(domain, common.GetShortDomain(domain), ipSrc.String(), ipDst.String())
 				}
 			}
 		}

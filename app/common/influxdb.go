@@ -44,11 +44,12 @@ func ReportHttp(host string, path string, client string, server string) {
 	writeApi.WritePoint(p)
 }
 
-func ReportTls(domain string, client string, server string) {
+func ReportTls(domain string, shortDomain string, client string, server string) {
 	p := influxdb2.NewPointWithMeasurement("tls").
-		AddTag("domain", domain).
+		AddTag("domain", shortDomain).
 		AddTag("server", server).
 		AddTag("client", client).
+		AddField("domain", domain).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
 }
