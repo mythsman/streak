@@ -2,14 +2,15 @@ package main
 
 import (
 	"streak/app"
+	"streak/app/common"
 )
 
 func main() {
-	app.InitLogger()
+	common.InitLogger()
 
-	app.InitConfig()
+	common.InitConfig()
 
-	app.InitInfluxdb()
+	common.InitInfluxdb()
 
 	app.RunAgent()
 

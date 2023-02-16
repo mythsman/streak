@@ -21,10 +21,12 @@ func RunAgent() {
 	for packet := range packetSource.Packets() {
 		// Only process transport layer (tcp , udp)
 		if packet.TransportLayer() != nil {
-			filter.DnsFilter(packet)
-			filter.TlsFilter(packet)
-			filter.HttpFilter(packet)
-			filter.TransportFilter(packet)
+			go func(val gopacket.Packet) {
+				filter.DnsFilter(val)
+				filter.TlsFilter(val)
+				filter.HttpFilter(val)
+				filter.TransportFilter(val)
+			}(packet)
 		}
 	}
 }

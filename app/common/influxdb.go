@@ -1,4 +1,4 @@
-package app
+package common
 
 import (
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
@@ -23,12 +23,13 @@ func InitInfluxdb() {
 	logrus.Infoln("Influxdb init success")
 }
 
-func ReportDns(domain string, client string, server string) {
+func ReportDns(domain string, shortDomain string, queryType string, client string, server string) {
 	p := influxdb2.NewPointWithMeasurement("dns").
-		AddTag("domain", domain).
+		AddTag("domain", shortDomain).
 		AddTag("server", server).
 		AddTag("client", client).
-		AddField("hit", 1).
+		AddTag("type", queryType).
+		AddField("domain", domain).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
 }

@@ -3,6 +3,7 @@ module streak
 go 1.17
 
 require (
+	github.com/dgraph-io/ristretto v0.1.1
 	github.com/dreadl0ck/tlsx v1.0.0
 	github.com/google/gopacket v1.1.19
 	github.com/influxdata/influxdb-client-go/v2 v2.12.2
@@ -11,8 +12,11 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect
+	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
