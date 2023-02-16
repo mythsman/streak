@@ -34,9 +34,9 @@ func ReportDns(domain string, shortDomain string, queryType string, client strin
 	writeApi.WritePoint(p)
 }
 
-func ReportHttp(domain string, client string, server string, path string) {
+func ReportHttp(host string, path string, client string, server string) {
 	p := influxdb2.NewPointWithMeasurement("http").
-		AddTag("domain", domain).
+		AddTag("host", host).
 		AddTag("server", server).
 		AddTag("client", client).
 		AddField("path", path).

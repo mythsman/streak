@@ -5,9 +5,9 @@ import (
 	"bytes"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"regexp"
+	"streak/app/common"
 )
 
 func HttpFilter(packet gopacket.Packet) {
@@ -17,8 +17,9 @@ func HttpFilter(packet gopacket.Packet) {
 			reader := bufio.NewReader(bytes.NewReader(tcp.Payload))
 			httpReq, err := http.ReadRequest(reader)
 			if err == nil {
-				logrus.Printf("http %s %s", httpReq.Host, parsePath(httpReq.RequestURI))
-				return
+				ipSrc := packet.NetworkLayer().NetworkFlow().Src()
+				ipDst := packet.NetworkLayer().NetworkFlow().Dst()
+				common.ReportHttp(httpReq.Host, parsePath(httpReq.RequestURI), ipSrc.String(), ipDst.String())
 			}
 		}
 	}

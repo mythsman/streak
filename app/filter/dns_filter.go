@@ -8,9 +8,6 @@ import (
 	"strings"
 )
 
-// https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains
-var specialDomains map[string]bool
-
 var ip2Name *ristretto.Cache
 var name2Ip *ristretto.Cache
 
@@ -26,12 +23,6 @@ func init() {
 		BufferItems: 64,
 	})
 
-	specialDomains = make(map[string]bool)
-
-	for _, name := range [...]string{"com", "org", "net", "int", "edu", "gov", "mil"} {
-		specialDomains[name] = true
-	}
-
 }
 
 func DnsFilter(packet gopacket.Packet) {
@@ -43,20 +34,7 @@ func DnsFilter(packet gopacket.Packet) {
 
 			domain := strings.ToLower(string(answer.Name))
 
-			common.ReportDns(domain, getShortDomain(domain), answer.Type.String(), ipDst.String(), ipSrc.String())
+			common.ReportDns(domain, common.GetShortDomain(domain), answer.Type.String(), ipDst.String(), ipSrc.String())
 		}
-	}
-}
-
-func getShortDomain(domain string) string {
-	split := strings.Split(domain, ".")
-	if len(split) <= 2 {
-		return domain
-	}
-	secondLevel := split[len(split)-2]
-	if specialDomains[secondLevel] {
-		return strings.Join(split[len(split)-3:], ".")
-	} else {
-		return strings.Join(split[len(split)-2:], ".")
 	}
 }
