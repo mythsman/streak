@@ -54,26 +54,13 @@ func ReportTls(domain string, shortDomain string, client string, server string) 
 	writeApi.WritePoint(p)
 }
 
-func ReportUdp(domain string, client string, server string, port string, tx uint64, rx uint64) {
-	p := influxdb2.NewPointWithMeasurement("udp").
-		AddTag("domain", domain).
+func ReportTransport(shortDomain string, client string, server string, port string, data int) {
+	p := influxdb2.NewPointWithMeasurement("transport").
+		AddTag("domain", shortDomain).
 		AddTag("server", server).
 		AddTag("port", port).
 		AddTag("client", client).
-		AddField("rx", rx).
-		AddField("tx", tx).
-		SetTime(time.Now())
-	writeApi.WritePoint(p)
-}
-
-func ReportTcp(domain string, client string, server string, port string, tx uint64, rx uint64) {
-	p := influxdb2.NewPointWithMeasurement("tcp").
-		AddTag("domain", domain).
-		AddTag("server", server).
-		AddTag("port", port).
-		AddTag("client", client).
-		AddField("rx", rx).
-		AddField("tx", tx).
+		AddField("data", data).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
 }
