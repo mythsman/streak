@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"github.com/dgraph-io/ristretto"
 	"github.com/sirupsen/logrus"
 	"streak/app/common"
@@ -26,25 +25,33 @@ func init() {
 
 }
 
-func SetSni(domain string, ipSrc string, portSrc string, ipDst string, portDst string) {
+func SetSni(domain string, ip1 string, port1 string, ip2 string, port2 string) {
 	shortDomain := common.GetShortDomain(domain)
-	sniCache.SetWithTTL(makeSniKey(ipSrc, portSrc, ipDst, portDst), shortDomain, 1, 1*time.Hour)
-	logrus.Infoln("sni set", ipDst, shortDomain)
+	sniKey := makeSniKey(ip1, port1, ip2, port2)
+	sniCache.SetWithTTL(sniKey, shortDomain, 1, 1*time.Hour)
+	logrus.Infoln("sni set", sniKey, shortDomain)
 }
 
-func QuerySni(ipSrc string, portSrc string, ipDst string, portDst string) string {
-	domain, found := sniCache.Get(makeSniKey(ipSrc, portSrc, ipDst, portDst))
+func QuerySni(ip1 string, port1 string, ip2 string, port2 string) string {
+	sniKey := makeSniKey(ip1, port1, ip2, port2)
+	domain, found := sniCache.Get(sniKey)
 	if found {
-		logrus.Infoln("sni hit", ipDst, domain)
+		logrus.Infoln("sni hit", sniKey, domain)
 		return domain.(string)
 	} else {
-		logrus.Infoln("sni miss", ipDst)
+		logrus.Infoln("sni miss", sniKey)
 		return ""
 	}
 }
 
-func makeSniKey(ipSrc string, portSrc string, ipDst string, portDst string) string {
-	return fmt.Sprintf("%s:%s->%s:%s", ipSrc, portSrc, ipDst, portDst)
+func makeSniKey(ip1 string, port1 string, ip2 string, port2 string) string {
+	key1 := ip1 + ":" + port1
+	key2 := ip2 + ":" + port2
+	if key1 > key2 {
+		return key1 + "->" + key2
+	} else {
+		return key2 + "->" + key1
+	}
 }
 
 func SetDomain(ip string, domain string) {

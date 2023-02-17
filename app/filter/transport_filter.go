@@ -18,17 +18,24 @@ func TransportFilter(packet gopacket.Packet) {
 	if ipSrc.IsPrivate() && ipDst.IsPrivate() {
 		logrus.Infoln("both private", ipSrc.String(), ipDst.String())
 	} else if ipSrc.IsPrivate() && !ipDst.IsPrivate() {
-		domain := cache.QueryDomain(ipDst.String())
-		if domain != "" {
-			common.ReportTransport(domain, ipSrc.String(), ipDst.String(), portDst.String(), len(packet.Data()))
-		}
+		reportInnerOuter(ipSrc.String(), portSrc.String(), ipDst.String(), portDst.String(), len(packet.Data()))
 	} else if !ipSrc.IsPrivate() && ipDst.IsPrivate() {
-		domain := cache.QueryDomain(ipSrc.String())
-		if domain != "" {
-			common.ReportTransport(domain, ipDst.String(), ipSrc.String(), portSrc.String(), len(packet.Data()))
-		}
+		reportInnerOuter(ipDst.String(), portDst.String(), ipSrc.String(), portSrc.String(), len(packet.Data()))
 	} else {
 		logrus.Infoln("may be lo ?", ipSrc.String(), ipDst.String())
 	}
+}
 
+func reportInnerOuter(innerIp string, innerPort string, outerIp string, outerPort string, packetSize int) {
+	domain := cache.QuerySni(innerIp, innerPort, outerIp, outerPort)
+	if domain != "" {
+		common.ReportTransport(domain, innerIp, outerIp, outerPort, packetSize)
+		return
+	}
+
+	domain = cache.QueryDomain(outerIp)
+	if domain != "" {
+		common.ReportTransport(domain, innerIp, outerIp, outerPort, packetSize)
+		return
+	}
 }
