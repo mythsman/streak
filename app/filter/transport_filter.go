@@ -4,6 +4,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/sirupsen/logrus"
 	"net"
+	"streak/app/cache"
 	"streak/app/common"
 )
 
@@ -17,17 +18,17 @@ func TransportFilter(packet gopacket.Packet) {
 	if ipSrc.IsPrivate() && ipDst.IsPrivate() {
 		logrus.Infoln("both private", ipSrc.String(), ipDst.String())
 	} else if ipSrc.IsPrivate() && !ipDst.IsPrivate() {
-		domain := QueryDomain(ipDst.String())
+		domain := cache.QueryDomain(ipDst.String())
 		if domain != "" {
 			common.ReportTransport(domain, ipSrc.String(), ipDst.String(), portDst.String(), len(packet.Data()))
 		}
 	} else if !ipSrc.IsPrivate() && ipDst.IsPrivate() {
-		domain := QueryDomain(ipSrc.String())
+		domain := cache.QueryDomain(ipSrc.String())
 		if domain != "" {
 			common.ReportTransport(domain, ipDst.String(), ipSrc.String(), portSrc.String(), len(packet.Data()))
 		}
 	} else {
-		logrus.Infoln("impossible!!!")
+		logrus.Infoln("may be lo ?", ipSrc.String(), ipDst.String())
 	}
 
 }
