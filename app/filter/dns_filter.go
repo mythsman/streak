@@ -20,7 +20,6 @@ func DnsFilter(packet gopacket.Packet) {
 
 			if answer.Type == layers.DNSTypeA {
 				cache.SetDomain(answer.IP.String(), domain)
-				common.ReportDns(domain, common.GetShortDomain(domain), layers.DNSTypeA.String(), ipDst.String(), ipSrc.String())
 			}
 
 			common.ReportDns(domain, common.GetShortDomain(domain), answer.Type.String(), ipDst.String(), ipSrc.String())
