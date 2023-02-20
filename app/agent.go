@@ -92,6 +92,9 @@ func ignorePacket(packet gopacket.Packet) bool {
 	srcIp := net.ParseIP(packet.NetworkLayer().NetworkFlow().Src().String())
 	dstIp := net.ParseIP(packet.NetworkLayer().NetworkFlow().Dst().String())
 
+	srcPort := packet.TransportLayer().TransportFlow().Src().String()
+	dstPort := packet.TransportLayer().TransportFlow().Dst().String()
+
 	// drop ipv6
 	if srcIp.To4() == nil || dstIp.To4() == nil {
 		return true
@@ -113,7 +116,8 @@ func ignorePacket(packet gopacket.Packet) bool {
 	}
 
 	packetType := judgeType(srcIp, dstIp)
-	logrus.Infoln("packet type :", packetType)
+
+	logrus.Infoln(packetType, srcIp.String()+":"+srcPort, "->", dstIp.String()+":"+dstPort)
 
 	return false
 }
