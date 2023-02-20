@@ -16,7 +16,7 @@ func TransportFilter(packet gopacket.Packet) {
 	portDst := packet.TransportLayer().TransportFlow().Dst()
 
 	if ipSrc.IsPrivate() && ipDst.IsPrivate() {
-		logrus.Infoln("both private", ipSrc.String(), ipDst.String())
+		logrus.Infoln("both private", ipSrc.String()+":"+portSrc.String(), ipDst.String()+":"+portDst.String())
 	} else if ipSrc.IsPrivate() && !ipDst.IsPrivate() {
 		reportInnerOuter(ipSrc.String(), portSrc.String(), ipDst.String(), portDst.String(), len(packet.Data()))
 	} else if !ipSrc.IsPrivate() && ipDst.IsPrivate() {

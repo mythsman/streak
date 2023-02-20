@@ -1,21 +1,30 @@
 FROM golang:1.17-alpine AS builder
 
-ENV GOPROXY=https://goproxy.io
+ENV GOPROXY=https://goproxy.cn
+ENV GO111MODULE=on
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-app build-base libpcap-dev
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-cache build-base libpcap-dev
 
-COPY . /root/streak
 WORKDIR /root/streak
 
-RUN go build -ldflags="-s -w"
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY . .
+
+RUN go build -v -ldflags="-s -w"
 
 FROM alpine
 ENV TZ=Asia/Shanghai
 ENV LD_LIBRARY_PATH=/usr/lib
 
-COPY --from=builder /root/streak/streak /root/
-WORKDIR /root/
+WORKDIR /srv/
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-app tzdata libpcap-dev
+COPY --from=builder /root/streak/streak ./
+COPY application.yml.sample ./application.yml
 
-CMD "/root/streak"
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add --no-cache tzdata libpcap-dev
+
+CMD "./streak"
