@@ -14,7 +14,7 @@ func RunAgent() {
 	networkInterface := viper.GetString("network.interface")
 	currentIpNet = getCurrentIpNet(networkInterface)
 
-	handle, err := pcap.OpenLive(networkInterface, 1024, false, -1)
+	handle, err := pcap.OpenLive(networkInterface, 1024, true, -1)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -107,6 +107,11 @@ func ignorePacket(packet gopacket.Packet) bool {
 
 	// drop interface local multicast
 	if srcIp.IsInterfaceLocalMulticast() || dstIp.IsInterfaceLocalMulticast() {
+		return true
+	}
+
+	// drop link local multicast
+	if srcIp.IsLinkLocalMulticast() || dstIp.IsLinkLocalMulticast() {
 		return true
 	}
 
