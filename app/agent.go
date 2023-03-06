@@ -16,7 +16,7 @@ func RunAgent() {
 	networkInterface := viper.GetString("network.interface")
 	currentIpNet = getCurrentIpNet(networkInterface)
 
-	runAgent(networkInterface)
+	go runAgent(networkInterface)
 	runAgent(getLoopBackInterface())
 }
 
