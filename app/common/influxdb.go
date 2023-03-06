@@ -5,10 +5,12 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
 	"time"
 )
 
 var writeApi api.WriteAPI
+var hostName string
 
 func InitInfluxdb() {
 	influxdbUrl := viper.GetString("influxdb.url")
@@ -20,11 +22,14 @@ func InitInfluxdb() {
 
 	writeApi = client.WriteAPI(viper.GetString("influxdb.org"), viper.GetString("influxdb.bucket"))
 
+	hostname, _ := os.Hostname()
+
 	logrus.Infoln("Influxdb init success")
 }
 
 func ReportDns(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("dns").
+		AddTag("host", hostName).
 		AddTag("domain", domain).
 		AddTag("client", client).
 		AddField("detail", detail).
@@ -35,6 +40,7 @@ func ReportDns(domain string, client string, detail string) {
 
 func ReportHttp(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("http").
+		AddTag("host", hostName).
 		AddTag("domain", domain).
 		AddTag("client", client).
 		AddField("detail", detail).
@@ -45,6 +51,7 @@ func ReportHttp(domain string, client string, detail string) {
 
 func ReportTls(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("tls").
+		AddTag("host", hostName).
 		AddTag("domain", domain).
 		AddTag("client", client).
 		AddField("detail", detail).
@@ -55,6 +62,7 @@ func ReportTls(domain string, client string, detail string) {
 
 func ReportTransport(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("transport").
+		AddTag("host", hostName).
 		AddTag("domain", domain).
 		AddTag("client", client).
 		AddField("detail", detail).
