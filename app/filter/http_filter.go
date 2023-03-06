@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"streak/app/common"
+	"strings"
 )
 
 func HttpFilter(packet gopacket.Packet) {
@@ -22,6 +23,9 @@ func HttpFilter(packet gopacket.Packet) {
 				ipDst := packet.NetworkLayer().NetworkFlow().Dst().String()
 
 				host := httpReq.Host
+				if strings.Contains(host, ":") {
+					host = strings.Split(host, ":")[0]
+				}
 				path := "http://" + host + parsePath(httpReq.RequestURI)
 				if net.ParseIP(httpReq.Host) != nil {
 					host = "unknown"
