@@ -18,7 +18,9 @@ func HttpFilter(packet gopacket.Packet) {
 			reader := bufio.NewReader(bytes.NewReader(tcp.Payload))
 			httpReq, err := http.ReadRequest(reader)
 			if err == nil {
-				ipSrc := packet.NetworkLayer().NetworkFlow().Src()
+				ipSrc := packet.NetworkLayer().NetworkFlow().Src().String()
+				ipDst := packet.NetworkLayer().NetworkFlow().Dst().String()
+
 				host := httpReq.Host
 				path := "http://" + host + parsePath(httpReq.RequestURI)
 				if net.ParseIP(httpReq.Host) != nil {
@@ -26,7 +28,7 @@ func HttpFilter(packet gopacket.Packet) {
 				} else {
 					host = common.GetShortDomain(host)
 				}
-				common.ReportHttp(host, ipSrc.String(), path)
+				common.ReportHttp(host, ipSrc, ipDst, path)
 			}
 		}
 	}

@@ -27,7 +27,7 @@ func InitInfluxdb() {
 	logrus.Infoln("Influxdb init success")
 }
 
-func ReportDns(domain string, client string, detail string) {
+func ReportDns(domain string, client string, server string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("dns").
 		AddTag("host", hostName).
 		AddTag("domain", domain).
@@ -35,10 +35,10 @@ func ReportDns(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Debugln("dns", domain, client, detail)
+	logrus.Debugln("dns", domain, client, "->", server, detail)
 }
 
-func ReportHttp(domain string, client string, detail string) {
+func ReportHttp(domain string, client string, server string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("http").
 		AddTag("host", hostName).
 		AddTag("domain", domain).
@@ -46,10 +46,10 @@ func ReportHttp(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Debugln("http", domain, client, detail)
+	logrus.Debugln("http", domain, client, "->", server, detail)
 }
 
-func ReportTls(domain string, client string, detail string) {
+func ReportTls(domain string, client string, server string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("tls").
 		AddTag("host", hostName).
 		AddTag("domain", domain).
@@ -57,10 +57,10 @@ func ReportTls(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Debugln("tls", domain, client, detail)
+	logrus.Debugln("tls", domain, client, "->", server, detail)
 }
 
-func ReportTransport(domain string, client string, detail string) {
+func ReportTransport(domain string, client string, server string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("transport").
 		AddTag("host", hostName).
 		AddTag("domain", domain).
@@ -68,5 +68,5 @@ func ReportTransport(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Debugln("transport", domain, client, detail)
+	logrus.Debugln("transport", domain, client, "->", server, detail)
 }

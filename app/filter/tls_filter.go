@@ -17,11 +17,12 @@ func TlsFilter(packet gopacket.Packet) {
 			if clientHello != nil {
 				serverName := clientHello.SNI
 				if serverName != "" {
-					ipSrc := packet.NetworkLayer().NetworkFlow().Src()
+					ipSrc := packet.NetworkLayer().NetworkFlow().Src().String()
+					ipDst := packet.NetworkLayer().NetworkFlow().Dst().String()
 
 					domain := strings.ToLower(serverName)
 
-					common.ReportTls(common.GetShortDomain(domain), ipSrc.String(), domain)
+					common.ReportTls(common.GetShortDomain(domain), ipSrc, ipDst, domain)
 				}
 			}
 		}
