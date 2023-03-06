@@ -22,7 +22,7 @@ func InitInfluxdb() {
 
 	writeApi = client.WriteAPI(viper.GetString("influxdb.org"), viper.GetString("influxdb.bucket"))
 
-	hostname, _ := os.Hostname()
+	hostName, _ = os.Hostname()
 
 	logrus.Infoln("Influxdb init success")
 }
