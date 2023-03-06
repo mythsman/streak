@@ -18,8 +18,7 @@ func HttpFilter(packet gopacket.Packet) {
 			httpReq, err := http.ReadRequest(reader)
 			if err == nil {
 				ipSrc := packet.NetworkLayer().NetworkFlow().Src()
-				ipDst := packet.NetworkLayer().NetworkFlow().Dst()
-				common.ReportHttp(httpReq.Host, parsePath(httpReq.RequestURI), ipSrc.String(), ipDst.String())
+				common.ReportHttp(httpReq.Host, ipSrc.String(), parsePath(httpReq.RequestURI))
 			}
 		}
 	}

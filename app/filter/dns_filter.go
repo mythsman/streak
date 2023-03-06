@@ -14,7 +14,6 @@ func DnsFilter(packet gopacket.Packet) {
 
 		for _, answer := range dns.Answers {
 			ipSrc := packet.NetworkLayer().NetworkFlow().Src()
-			ipDst := packet.NetworkLayer().NetworkFlow().Dst()
 
 			domain := strings.ToLower(string(answer.Name))
 
@@ -22,7 +21,7 @@ func DnsFilter(packet gopacket.Packet) {
 				cache.SetDomain(answer.IP.String(), domain)
 			}
 
-			common.ReportDns(domain, common.GetShortDomain(domain), answer.Type.String(), ipDst.String(), ipSrc.String())
+			common.ReportDns(common.GetShortDomain(domain), ipSrc.String(), domain)
 		}
 	}
 }

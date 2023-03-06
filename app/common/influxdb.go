@@ -23,44 +23,42 @@ func InitInfluxdb() {
 	logrus.Infoln("Influxdb init success")
 }
 
-func ReportDns(domain string, shortDomain string, queryType string, client string, server string) {
+func ReportDns(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("dns").
-		AddTag("domain", shortDomain).
-		AddTag("server", server).
+		AddTag("domain", domain).
 		AddTag("client", client).
-		AddTag("type", queryType).
-		AddField("domain", domain).
+		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
+	logrus.Infoln("dns", domain, client, detail)
 }
 
-func ReportHttp(host string, path string, client string, server string) {
+func ReportHttp(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("http").
-		AddTag("host", host).
-		AddTag("server", server).
+		AddTag("domain", domain).
 		AddTag("client", client).
-		AddField("path", path).
+		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
+	logrus.Infoln("http", domain, client, detail)
 }
 
-func ReportTls(domain string, shortDomain string, client string, server string) {
+func ReportTls(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("tls").
-		AddTag("domain", shortDomain).
-		AddTag("server", server).
+		AddTag("domain", domain).
 		AddTag("client", client).
-		AddField("domain", domain).
+		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
+	logrus.Infoln("tls", domain, client, detail)
 }
 
-func ReportTransport(shortDomain string, client string, server string, port string, data int) {
+func ReportTransport(domain string, client string, detail string) {
 	p := influxdb2.NewPointWithMeasurement("transport").
-		AddTag("domain", shortDomain).
-		AddTag("server", server).
-		AddTag("port", port).
+		AddTag("domain", domain).
 		AddTag("client", client).
-		AddField("data", data).
+		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
+	logrus.Infoln("transport", domain, client, detail)
 }

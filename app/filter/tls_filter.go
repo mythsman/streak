@@ -4,7 +4,6 @@ import (
 	"github.com/dreadl0ck/tlsx"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"streak/app/cache"
 	"streak/app/common"
 	"strings"
 )
@@ -19,16 +18,10 @@ func TlsFilter(packet gopacket.Packet) {
 				serverName := clientHello.SNI
 				if serverName != "" {
 					ipSrc := packet.NetworkLayer().NetworkFlow().Src()
-					ipDst := packet.NetworkLayer().NetworkFlow().Dst()
-
-					portSrc := packet.TransportLayer().TransportFlow().Src()
-					portDst := packet.TransportLayer().TransportFlow().Dst()
 
 					domain := strings.ToLower(serverName)
 
-					common.ReportTls(domain, common.GetShortDomain(domain), ipSrc.String(), ipDst.String())
-
-					cache.SetSni(domain, ipSrc.String(), portSrc.String(), ipDst.String(), portDst.String())
+					common.ReportTls(common.GetShortDomain(domain), ipSrc.String(), domain)
 				}
 			}
 		}

@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"net"
+	"streak/app/filter"
 )
 
 var currentIpNet *net.IPNet
@@ -24,12 +25,18 @@ func RunAgent() {
 		if ignorePacket(packet) {
 			continue
 		}
-		//go func(val gopacket.Packet) {
-		//	filter.DnsFilter(val)
-		//	filter.TlsFilter(val)
-		//	filter.HttpFilter(val)
-		//	filter.TransportFilter(val)
-		//}(packet)
+		go func(p gopacket.Packet) {
+			filter.DnsFilter(p)
+			filter.TlsFilter(p)
+			filter.HttpFilter(p)
+
+			// ignore return packet
+			srcIp := net.ParseIP(p.NetworkLayer().NetworkFlow().Src().String())
+			if currentIpNet.Contains(srcIp) {
+				filter.TransportFilter(p)
+			}
+
+		}(packet)
 	}
 }
 
@@ -46,42 +53,6 @@ func getCurrentIpNet(networkInterface string) *net.IPNet {
 	panic("No ipv4 found for " + networkInterface)
 }
 
-func judgeType(srcIp net.IP, dstIp net.IP) string {
-	if srcIp.Equal(currentIpNet.IP) && !dstIp.IsPrivate() {
-		return "tx_public"
-	}
-
-	if !srcIp.IsPrivate() && dstIp.Equal(currentIpNet.IP) {
-		return "rx_public"
-	}
-
-	if srcIp.Equal(currentIpNet.IP) && dstIp.IsPrivate() {
-		return "tx_private"
-	}
-
-	if srcIp.IsPrivate() && dstIp.Equal(currentIpNet.IP) {
-		return "rx_private"
-	}
-
-	if srcIp.IsPrivate() && !dstIp.IsPrivate() {
-		return "tx_route"
-	}
-
-	if !srcIp.IsPrivate() && dstIp.IsPrivate() {
-		return "rx_route"
-	}
-
-	if srcIp.IsPrivate() && dstIp.IsPrivate() {
-		return "both private"
-	}
-
-	if !srcIp.IsPrivate() && !dstIp.IsPrivate() {
-		return "both public?"
-	}
-
-	panic("packet type unknown")
-}
-
 func ignorePacket(packet gopacket.Packet) bool {
 
 	// drop not transport
@@ -91,9 +62,6 @@ func ignorePacket(packet gopacket.Packet) bool {
 
 	srcIp := net.ParseIP(packet.NetworkLayer().NetworkFlow().Src().String())
 	dstIp := net.ParseIP(packet.NetworkLayer().NetworkFlow().Dst().String())
-
-	srcPort := packet.TransportLayer().TransportFlow().Src().String()
-	dstPort := packet.TransportLayer().TransportFlow().Dst().String()
 
 	// drop ipv6
 	if srcIp.To4() == nil || dstIp.To4() == nil {
@@ -119,10 +87,6 @@ func ignorePacket(packet gopacket.Packet) bool {
 	if srcIp.IsUnspecified() || dstIp.IsUnspecified() {
 		return true
 	}
-
-	packetType := judgeType(srcIp, dstIp)
-
-	logrus.Infoln(packetType, srcIp.String()+":"+srcPort, "->", dstIp.String()+":"+dstPort)
 
 	return false
 }
