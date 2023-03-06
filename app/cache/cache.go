@@ -3,6 +3,7 @@ package cache
 import (
 	"github.com/dgraph-io/ristretto"
 	"github.com/sirupsen/logrus"
+	"net"
 	"streak/app/common"
 	"time"
 )
@@ -20,16 +21,19 @@ func init() {
 func SetDomain(ip string, domain string) {
 	shortDomain := common.GetShortDomain(domain)
 	rDnsCache.SetWithTTL(ip, shortDomain, 1, 1*time.Hour)
-	logrus.Debugln("domain set", ip, shortDomain)
+	logrus.Debugln("cache set", ip, shortDomain)
 }
 
-func QueryDomain(ip string) string {
-	domain, found := rDnsCache.Get(ip)
+func QueryDomain(ip net.IP) string {
+	if ip.IsLoopback() {
+		return ""
+	}
+	domain, found := rDnsCache.Get(ip.String())
 	if found {
-		logrus.Debugln("domain hit", ip, domain)
+		logrus.Debugln("cache hit", ip, domain)
 		return domain.(string)
 	} else {
-		logrus.Debugln("domain miss", ip)
+		logrus.Debugln("cache miss", ip)
 		return ""
 	}
 }

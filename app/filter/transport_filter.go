@@ -9,8 +9,8 @@ import (
 )
 
 func TransportFilter(packet gopacket.Packet) {
-	ipSrc := net.ParseIP(packet.NetworkLayer().NetworkFlow().Src().String()).String()
-	ipDst := net.ParseIP(packet.NetworkLayer().NetworkFlow().Dst().String()).String()
+	ipSrc := net.ParseIP(packet.NetworkLayer().NetworkFlow().Src().String())
+	ipDst := net.ParseIP(packet.NetworkLayer().NetworkFlow().Dst().String())
 
 	portDst := packet.TransportLayer().TransportFlow().Dst()
 
@@ -21,10 +21,10 @@ func TransportFilter(packet gopacket.Packet) {
 		proto = "udp"
 	}
 
-	detail := proto + "://" + ipDst + ":" + portDst.String()
+	detail := proto + "://" + ipDst.String() + ":" + portDst.String()
 
 	domain := cache.QueryDomain(ipDst)
 	if domain != "" {
-		common.ReportTransport(domain, ipSrc, ipDst, detail)
+		common.ReportTransport(domain, ipSrc.String(), ipDst.String(), detail)
 	}
 }
