@@ -40,7 +40,7 @@ func ReportHttp(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Infoln("http", domain, client, detail)
+	logrus.Debugln("http", domain, client, detail)
 }
 
 func ReportTls(domain string, client string, detail string) {
