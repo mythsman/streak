@@ -8,7 +8,7 @@ var specialDomains map[string]bool
 func init() {
 	specialDomains = make(map[string]bool)
 
-	for _, name := range [...]string{"com", "org", "net", "int", "edu", "gov", "mil", "github"} {
+	for _, name := range [...]string{"com", "org", "net", "int", "edu", "gov", "mil"} {
 		specialDomains[name] = true
 	}
 }

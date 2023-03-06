@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"net"
 	"streak/app/filter"
+	"strings"
 )
 
 var currentIpNet *net.IPNet
@@ -15,11 +16,18 @@ func RunAgent() {
 	networkInterface := viper.GetString("network.interface")
 	currentIpNet = getCurrentIpNet(networkInterface)
 
+	runAgent(networkInterface)
+	runAgent(getLoopBackInterface())
+}
+
+func runAgent(networkInterface string) {
+	if networkInterface == "" {
+		panic("network interface unknown")
+	}
 	handle, err := pcap.OpenLive(networkInterface, 1024, true, -1)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
 		if ignorePacket(packet) {
@@ -32,7 +40,7 @@ func RunAgent() {
 
 			// ignore return packet
 			srcIp := net.ParseIP(p.NetworkLayer().NetworkFlow().Src().String())
-			if currentIpNet.Contains(srcIp) {
+			if currentIpNet.Contains(srcIp) || srcIp.IsLoopback() {
 				filter.TransportFilter(p)
 			}
 
@@ -89,4 +97,15 @@ func ignorePacket(packet gopacket.Packet) bool {
 	}
 
 	return false
+}
+
+func getLoopBackInterface() string {
+	interfaces, _ := net.Interfaces()
+	for _, inter := range interfaces {
+		flags := inter.Flags.String()
+		if strings.Contains(flags, "up") && strings.Contains(flags, "loopback") {
+			return inter.Name
+		}
+	}
+	return ""
 }
