@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"net"
 	"net/http"
 	"regexp"
 	"streak/app/common"
@@ -18,7 +19,14 @@ func HttpFilter(packet gopacket.Packet) {
 			httpReq, err := http.ReadRequest(reader)
 			if err == nil {
 				ipSrc := packet.NetworkLayer().NetworkFlow().Src()
-				common.ReportHttp(httpReq.Host, ipSrc.String(), parsePath(httpReq.RequestURI))
+				host := httpReq.Host
+				path := "http://" + host + parsePath(httpReq.RequestURI)
+				if net.ParseIP(httpReq.Host) != nil {
+					host = "unknown"
+				} else {
+					host = common.GetShortDomain(host)
+				}
+				common.ReportHttp(host, ipSrc.String(), path)
 			}
 		}
 	}

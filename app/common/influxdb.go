@@ -30,7 +30,7 @@ func ReportDns(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Infoln("dns", domain, client, detail)
+	logrus.Debugln("dns", domain, client, detail)
 }
 
 func ReportHttp(domain string, client string, detail string) {
@@ -50,7 +50,7 @@ func ReportTls(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Infoln("tls", domain, client, detail)
+	logrus.Debugln("tls", domain, client, detail)
 }
 
 func ReportTransport(domain string, client string, detail string) {
@@ -60,5 +60,5 @@ func ReportTransport(domain string, client string, detail string) {
 		AddField("detail", detail).
 		SetTime(time.Now())
 	writeApi.WritePoint(p)
-	logrus.Infoln("transport", domain, client, detail)
+	logrus.Debugln("transport", domain, client, detail)
 }
