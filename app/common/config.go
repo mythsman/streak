@@ -1,7 +1,6 @@
 package common
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
@@ -16,7 +15,6 @@ func initFromYaml() {
 	viper.AddConfigPath(filepath.Join(workDir, "../"))
 	err := viper.ReadInConfig()
 	if err != nil {
-		logrus.Infoln("viper init error")
 		panic(err)
 	}
 }

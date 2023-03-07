@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	common.InitLogger()
-
 	common.InitConfig()
+
+	common.InitLogger()
 
 	common.InitInfluxdb()
 
