@@ -1,5 +1,9 @@
 logger:
   level: info
+cache:
+  capacity: 100000
+  metric_interval: 60
+  ttl: 86400
 network:
   interface: eth0
 influxdb:

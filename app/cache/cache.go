@@ -3,24 +3,43 @@ package cache
 import (
 	"github.com/dgraph-io/ristretto"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"net"
 	"streak/app/common"
 	"time"
 )
 
 var rDnsCache *ristretto.Cache
+var capacity int64
+var ttl int64
+var metricInterval int64
 
-func init() {
+func InitCache() {
+	capacity = viper.GetInt64("cache.capacity")
+	metricInterval = viper.GetInt64("cache.metric_interval")
+	ttl = viper.GetInt64("cache.ttl")
+
 	rDnsCache, _ = ristretto.NewCache(&ristretto.Config{
-		NumCounters: 1 << 24, // 16M
-		MaxCost:     1 << 27, // 128MB
+		NumCounters: capacity * 10,
+		MaxCost:     capacity,
+		Metrics:     metricInterval > 0,
 		BufferItems: 64,
 	})
+	go scheduleMetrics()
+}
+
+func scheduleMetrics() {
+	ticker := time.NewTicker(time.Duration(metricInterval) * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		logrus.Infoln("cache metric", rDnsCache.Metrics.String())
+	}
 }
 
 func SetDomain(ip string, domain string) {
 	shortDomain := common.GetShortDomain(domain)
-	rDnsCache.SetWithTTL(ip, shortDomain, 1, 1*time.Hour)
+	rDnsCache.SetWithTTL(ip, shortDomain, ttl, 1*time.Second)
 	logrus.Debugln("cache set", ip, shortDomain)
 }
 
