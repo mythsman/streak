@@ -22,7 +22,8 @@ func HttpFilter(packet gopacket.Packet) {
 				ipSrc := packet.NetworkLayer().NetworkFlow().Src().String()
 				ipDst := packet.NetworkLayer().NetworkFlow().Dst().String()
 
-				host := httpReq.Host
+				host := strings.ToLower(httpReq.Host)
+
 				if strings.Contains(host, ":") {
 					host = strings.Split(host, ":")[0]
 				}
