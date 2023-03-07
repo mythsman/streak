@@ -26,5 +26,7 @@ func TransportFilter(packet gopacket.Packet) {
 	domain := cache.QueryDomain(ipDst)
 	if domain != "" {
 		common.ReportTransport(domain, ipSrc.String(), ipDst.String(), detail)
+	}else{
+		common.ReportTransport("unknown", ipSrc.String(), ipDst.String(), detail)
 	}
 }
