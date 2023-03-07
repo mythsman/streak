@@ -25,7 +25,7 @@ func SetDomain(ip string, domain string) {
 }
 
 func QueryDomain(ip net.IP) string {
-	if ip.IsLoopback() {
+	if ip.IsLoopback() || ip.IsPrivate() {
 		return ""
 	}
 	domain, found := rDnsCache.Get(ip.String())
