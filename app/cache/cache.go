@@ -25,7 +25,9 @@ func InitCache() {
 		Metrics:     metricInterval > 0,
 		BufferItems: 64,
 	})
-	go scheduleMetrics()
+	if metricInterval > 0 {
+		go scheduleMetrics()
+	}
 }
 
 func scheduleMetrics() {
