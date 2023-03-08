@@ -22,7 +22,7 @@ func DnsFilter(packet gopacket.Packet) {
 				cache.SetDomain(answer.IP.String(), domain)
 			}
 
-			common.ReportDns(common.GetShortDomain(domain), ipSrc.String(), ipDst.String(), domain)
+			common.ReportDns(common.GetShortDomain(domain), ipDst.String(), ipSrc.String(), domain)
 		}
 	}
 }
