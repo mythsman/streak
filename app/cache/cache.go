@@ -39,7 +39,7 @@ func scheduleMetrics() {
 
 func SetDomain(ip string, domain string) {
 	shortDomain := common.GetShortDomain(domain)
-	rDnsCache.SetWithTTL(ip, shortDomain, ttl, 1*time.Second)
+	rDnsCache.SetWithTTL(ip, shortDomain, 1, time.Duration(ttl)*time.Second)
 	logrus.Debugln("cache set", ip, shortDomain)
 }
 

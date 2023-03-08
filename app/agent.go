@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/binary"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 	"github.com/sirupsen/logrus"
@@ -11,10 +12,12 @@ import (
 )
 
 var currentIpNet *net.IPNet
+var currentBroadcast net.IP
 
 func RunAgent() {
 	networkInterface := viper.GetString("network.interface")
 	currentIpNet = getCurrentIpNet(networkInterface)
+	currentBroadcast = getBroadcast(currentIpNet)
 
 	go runAgent(networkInterface)
 	runAgent(getLoopBackInterface())
@@ -40,7 +43,9 @@ func runAgent(networkInterface string) {
 
 			// ignore return packet
 			srcIp := net.ParseIP(p.NetworkLayer().NetworkFlow().Src().String())
-			if currentIpNet.Contains(srcIp) || srcIp.IsLoopback() {
+			dstIp := net.ParseIP(p.NetworkLayer().NetworkFlow().Dst().String())
+
+			if (currentIpNet.Contains(srcIp) || srcIp.IsLoopback()) && !(currentIpNet.Contains(dstIp) || dstIp.IsLoopback()) {
 				filter.TransportFilter(p)
 			}
 
@@ -76,8 +81,33 @@ func ignorePacket(packet gopacket.Packet) bool {
 		return true
 	}
 
-	// drop dst not global
-	if !dstIp.IsGlobalUnicast() {
+	// drop multicast
+	if srcIp.IsMulticast() || dstIp.IsMulticast() {
+		return true
+	}
+
+	// drop interface local multicast
+	if srcIp.IsInterfaceLocalMulticast() || dstIp.IsInterfaceLocalMulticast() {
+		return true
+	}
+
+	// drop link local multicast
+	if srcIp.IsLinkLocalMulticast() || dstIp.IsLinkLocalMulticast() {
+		return true
+	}
+
+	// drop unspecified
+	if srcIp.IsUnspecified() || dstIp.IsUnspecified() {
+		return true
+	}
+
+	// drop ipv4 broadcast
+	if srcIp.Equal(net.IPv4bcast) || dstIp.Equal(net.IPv4bcast) {
+		return true
+	}
+
+	// drop net broadcast
+	if srcIp.Equal(currentBroadcast) || dstIp.Equal(currentBroadcast) {
 		return true
 	}
 
@@ -93,4 +123,13 @@ func getLoopBackInterface() string {
 		}
 	}
 	return ""
+}
+
+func getBroadcast(n *net.IPNet) net.IP {
+	if n.IP.To4() == nil {
+		return net.IP{}
+	}
+	ip := make(net.IP, len(n.IP.To4()))
+	binary.BigEndian.PutUint32(ip, binary.BigEndian.Uint32(n.IP.To4())|^binary.BigEndian.Uint32(net.IP(n.Mask).To4()))
+	return ip
 }
