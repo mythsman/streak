@@ -76,23 +76,8 @@ func ignorePacket(packet gopacket.Packet) bool {
 		return true
 	}
 
-	// drop multicast
-	if srcIp.IsMulticast() || dstIp.IsMulticast() {
-		return true
-	}
-
-	// drop interface local multicast
-	if srcIp.IsInterfaceLocalMulticast() || dstIp.IsInterfaceLocalMulticast() {
-		return true
-	}
-
-	// drop link local multicast
-	if srcIp.IsLinkLocalMulticast() || dstIp.IsLinkLocalMulticast() {
-		return true
-	}
-
-	// drop unspecified
-	if srcIp.IsUnspecified() || dstIp.IsUnspecified() {
+	// drop dst not global
+	if !dstIp.IsGlobalUnicast() {
 		return true
 	}
 

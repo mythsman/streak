@@ -9,7 +9,7 @@ import (
 func InitLogger() {
 	logrus.SetOutput(os.Stdout)
 	level, err := logrus.ParseLevel(viper.GetString("logger.level"))
-	if err == nil {
+	if err != nil {
 		level = logrus.InfoLevel
 	}
 	logrus.SetLevel(level)
