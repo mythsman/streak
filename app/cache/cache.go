@@ -44,9 +44,6 @@ func SetDomain(ip string, domain string) {
 }
 
 func QueryDomain(ip net.IP) string {
-	if ip.IsLoopback() || ip.IsPrivate() {
-		return ""
-	}
 	domain, found := rDnsCache.Get(ip.String())
 	if found {
 		logrus.Debugln("cache hit", ip, domain)
