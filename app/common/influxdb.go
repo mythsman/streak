@@ -18,7 +18,11 @@ func InitInfluxdb() {
 		return
 	}
 
-	client := influxdb2.NewClient(viper.GetString("influxdb.url"), viper.GetString("influxdb.token"))
+	option := influxdb2.DefaultOptions()
+	option.WriteOptions().SetBatchSize(viper.GetUint("influxdb.batch_size"))
+	option.WriteOptions().SetFlushInterval(viper.GetUint("influxdb.flush_interval"))
+
+	client := influxdb2.NewClientWithOptions(viper.GetString("influxdb.url"), viper.GetString("influxdb.token"), option)
 
 	writeApi = client.WriteAPI(viper.GetString("influxdb.org"), viper.GetString("influxdb.bucket"))
 

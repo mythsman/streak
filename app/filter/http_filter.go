@@ -28,9 +28,7 @@ func HttpFilter(packet gopacket.Packet) {
 					host = strings.Split(host, ":")[0]
 				}
 				path := "http://" + host + parsePath(httpReq.RequestURI)
-				if net.ParseIP(host) != nil {
-					host = "unknown"
-				} else {
+				if net.ParseIP(host) == nil {
 					host = common.GetShortDomain(host)
 				}
 				common.ReportHttp(host, ipSrc, ipDst, path)
