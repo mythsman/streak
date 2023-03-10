@@ -21,6 +21,7 @@ func InitInfluxdb() {
 	option := influxdb2.DefaultOptions()
 	option.WriteOptions().SetBatchSize(viper.GetUint("influxdb.batch_size"))
 	option.WriteOptions().SetFlushInterval(viper.GetUint("influxdb.flush_interval"))
+	option.WriteOptions().SetUseGZip(viper.GetBool("influxdb.use_gzip"))
 
 	client := influxdb2.NewClientWithOptions(viper.GetString("influxdb.url"), viper.GetString("influxdb.token"), option)
 

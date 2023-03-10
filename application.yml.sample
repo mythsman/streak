@@ -9,6 +9,7 @@ network:
 influxdb:
   batch_size: 5000
   flush_interval: 5000
+  use_gzip: true
   url: https://localhost
   token: 111111111
   org: home
